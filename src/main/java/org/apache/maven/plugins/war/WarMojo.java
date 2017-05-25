@@ -30,6 +30,7 @@ import java.util.List;
 import org.apache.maven.archiver.MavenArchiver;
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.artifact.DependencyResolutionRequiredException;
+import org.apache.maven.model.Resource;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.Component;
@@ -251,6 +252,56 @@ public class WarMojo
         if ( webXmlFile.exists() )
         {
             warArchiver.setWebxml( webXmlFile );
+        }
+        final Resource[] webResources = getWebResources();
+        if ( !isCopyWebResources() && webResources != null )
+        {
+            for ( int i = 0; i < webResources.length; i++ )
+            {
+                Resource resource = webResources[i];
+                File directory = new File( resource.getDirectory() );
+                if ( !directory.isAbsolute() )
+                {
+                    directory = new File(
+                        getProject().getBasedir() + File.separator + resource.getDirectory() );
+                }
+
+                String[] includes;
+                if ( resource.getIncludes() != null )
+                {
+                    includes = new String[resource.getIncludes().size()];
+                    resource.getIncludes().toArray( includes );
+                }
+                else
+                {
+                    includes = new String[0];
+                }
+                String[] excludes;
+                if ( resource.getExcludes() != null )
+                {
+                    excludes = new String[resource.getExcludes().size()];
+                    resource.getExcludes().toArray( excludes );
+                }
+                else
+                {
+                    excludes = new String[0];
+                }
+                String prefix = null;
+                if ( resource.getTargetPath() != null )
+                {
+                    if ( resource.getTargetPath().endsWith( "/" ) || resource.getTargetPath().endsWith( "\\" ) )
+                    {
+                       prefix = resource.getTargetPath();
+                    }
+                    else
+                        {
+                        prefix = resource.getTargetPath() + File.separator;
+                    }
+                }
+                archiver.getArchiver().addDirectory(
+                    directory, prefix, includes, excludes
+                );
+            }
         }
 
         warArchiver.setRecompressAddedZips( isRecompressZippedFiles() );

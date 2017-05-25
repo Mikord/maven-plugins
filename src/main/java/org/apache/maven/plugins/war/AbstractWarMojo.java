@@ -126,6 +126,12 @@ public abstract class AbstractWarMojo
     private Resource[] webResources;
 
     /**
+     * Copy webResources to output folder or add them straight to the archive without copying
+     */
+    @Parameter( defaultValue = "true" )
+    private boolean copyWebResources;
+
+    /**
      * Filters (property files) to include during the interpolation of the pom.xml.
      */
     @Parameter
@@ -139,7 +145,7 @@ public abstract class AbstractWarMojo
      * <p>
      * So, the default filtering delimiters might be specified as:
      * </p>
-     * 
+     *
      * <pre>
      * &lt;delimiters&gt;
      *   &lt;delimiter&gt;${*}&lt;/delimiter&gt;
@@ -243,7 +249,7 @@ public abstract class AbstractWarMojo
     private String warSourceExcludes;
 
     /**
-     * The comma separated list of tokens to include when doing a WAR overlay. Default is 
+     * The comma separated list of tokens to include when doing a WAR overlay. Default is
      * {@link org.apache.maven.plugins.war.Overlay#DEFAULT_INCLUDES}
      *
      */
@@ -251,7 +257,7 @@ public abstract class AbstractWarMojo
     private String dependentWarIncludes = StringUtils.join( Overlay.DEFAULT_INCLUDES, "," );
 
     /**
-     * The comma separated list of tokens to exclude when doing a WAR overlay. Default is 
+     * The comma separated list of tokens to exclude when doing a WAR overlay. Default is
      * {@link org.apache.maven.plugins.war.Overlay#DEFAULT_EXCLUDES}
      *
      */
@@ -336,7 +342,7 @@ public abstract class AbstractWarMojo
 
     /**
      * Stop searching endToken at the end of line
-     * 
+     *
      * @since 2.4
      */
     @Parameter( defaultValue = "false" )
@@ -344,7 +350,7 @@ public abstract class AbstractWarMojo
 
     /**
      * use jvmChmod rather that cli chmod and forking process
-     * 
+     *
      * @since 2.4
      */
     @Parameter( defaultValue = "true" )
@@ -497,7 +503,7 @@ public abstract class AbstractWarMojo
             {
                 mavenResourcesExecution.setNonFilteredFileExtensions( nonFilteredFileExtensions );
             }
-            
+
             if ( filters == null )
             {
                 filters = getProject().getBuild().getFilters();
@@ -557,12 +563,26 @@ public abstract class AbstractWarMojo
 
         }
 
+        if ( !isCopyWebResources() && getWebResources() != null )
+        {
+            for ( Resource resource : getWebResources() )
+            {
+                if ( resource.isFiltering() )
+                {
+                    throw new MojoExecutionException(
+                        "Parameter copyWebResources can't be used with webResources with filtering"
+                    );
+                }
+            }
+        }
+
         final List<Overlay> resolvedOverlays = overlayManager.getOverlays();
         for ( Overlay overlay : resolvedOverlays )
         {
             if ( overlay.isCurrentProject() )
             {
-                packagingTasks.add( new WarProjectPackagingTask( webResources, webXml, containerConfigXML,
+                packagingTasks.add( new WarProjectPackagingTask( webResources, isCopyWebResources(), webXml,
+                                                                 containerConfigXML,
                                                                  currentProjectOverlay ) );
             }
             else
@@ -1034,6 +1054,16 @@ public abstract class AbstractWarMojo
     public void setWebResources( Resource[] webResources )
     {
         this.webResources = webResources;
+    }
+
+    public boolean isCopyWebResources()
+    {
+        return copyWebResources;
+    }
+
+    public void setCopyWebResources( boolean copyWebResources )
+    {
+        this.copyWebResources = copyWebResources;
     }
 
     /**

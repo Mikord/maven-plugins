@@ -41,6 +41,13 @@ public class WarInPlaceMojo
     {
         getLog().info( "Generating webapp in source directory [" + getWarSourceDirectory() + "]" );
 
+        if ( !isCopyWebResources() )
+        {
+            throw new MojoExecutionException(
+                "Parameter copyWebResources can't be used with inplace build"
+            );
+        }
+
         buildExplodedWebapp( getWarSourceDirectory() );
     }
 }

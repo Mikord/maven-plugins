@@ -43,6 +43,13 @@ public class WarExplodedMojo
     {
         getLog().info( "Exploding webapp" );
 
+        if ( !isCopyWebResources() )
+        {
+            throw new MojoExecutionException(
+                "Parameter copyWebResources can't be used with exploded build"
+            );
+        }
+
         buildExplodedWebapp( getWebappDirectory() );
     }
 
