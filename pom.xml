@@ -49,11 +49,18 @@
     <system>JIRA</system>
     <url>https://issues.apache.org/jira/browse/MWAR</url>
   </issueManagement>
+
   <distributionManagement>
-    <site>
-      <id>apache.website</id>
-      <url>scm:svn:https://svn.apache.org/repos/infra/websites/production/maven/components/${maven.site.path}</url>
-    </site>
+    <repository>
+      <id>central</id>
+      <name>ASD CG Release repository</name>
+      <url>http://artifactory.cg.ru/artifactory/libs-releases-local</url>
+    </repository>
+    <snapshotRepository>
+      <id>snapshots</id>
+      <name>ASD CG Snapshots repository</name>
+      <url>http://artifactory.cg.ru/artifactory/libs-snapshots-local</url>
+    </snapshotRepository>
   </distributionManagement>
 
   <properties>
