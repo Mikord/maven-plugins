@@ -49,6 +49,8 @@ public class WarProjectPackagingTask
 {
     private final Resource[] webResources;
 
+    private final boolean copyWebResources;
+
     private final File webXml;
 
     private final File containerConfigXML;
@@ -63,7 +65,8 @@ public class WarProjectPackagingTask
      * @param containerConfigXml {@link #containerConfigXML}
      * @param currentProjectOverlay {@link #currentProjectOverlay}
      */
-    public WarProjectPackagingTask( Resource[] webResources, File webXml, File containerConfigXml,
+    public WarProjectPackagingTask( Resource[] webResources, boolean copyWebResources, File webXml,
+                                    File containerConfigXml,
                                     Overlay currentProjectOverlay )
     {
         if ( webResources != null )
@@ -74,6 +77,7 @@ public class WarProjectPackagingTask
         {
             this.webResources = new Resource[0];
         }
+        this.copyWebResources = copyWebResources;
         this.webXml = webXml;
         this.containerConfigXML = containerConfigXml;
         this.currentProjectOverlay = currentProjectOverlay;
@@ -123,6 +127,11 @@ public class WarProjectPackagingTask
     protected void handleWebResources( WarPackagingContext context )
         throws MojoExecutionException
     {
+        if ( !copyWebResources )
+        {
+            context.getLog().info( "Skipping copying webResources to output folder" );
+            return;
+        }
         for ( Resource resource : webResources )
         {
 

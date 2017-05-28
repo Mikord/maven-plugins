@@ -71,6 +71,7 @@ public abstract class AbstractWarMojoTest
         setVariableValueToObject( mojo, "useCache", Boolean.FALSE );
         setVariableValueToObject( mojo, "mavenFileFilter", lookup( MavenFileFilter.class.getName() ) );
         setVariableValueToObject( mojo, "useJvmChmod", Boolean.TRUE );
+        setVariableValueToObject( mojo, "copyWebResources", Boolean.TRUE );
 
         MavenExecutionRequest request = new DefaultMavenExecutionRequest();
         request.setSystemProperties( System.getProperties() );
